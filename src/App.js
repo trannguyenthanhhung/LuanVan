@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 // import logo from './logo.svg'
-import './App.css'
+import "./App.css";
 import {
   SearchInput,
   Pane,
@@ -9,63 +9,73 @@ import {
   SideSheet,
   Paragraph,
   Heading,
-  Card
-} from 'evergreen-ui'
-import Highlight from 'react-highlighter'
+  Card,
+  Spinner
+} from "evergreen-ui";
+import Highlight from "react-highlighter";
 
 class App extends Component {
   state = {
-    input: '',
+    input: "",
     data: [],
     isShown: false,
     content: {},
-    token: []
-  }
+    token: [],
+    loading: false
+  };
 
   change = e => {
     this.setState({
       input: e.target.value
-    })
-  }
+    });
+  };
 
   submit = e => {
-    e.preventDefault()
-    const { input } = this.state
+    e.preventDefault();
+    this.setState({
+      loading: true
+    });
+    const { input } = this.state;
     fetch(`http://localhost:5500/?query=${input}`)
       .then(res => res.json())
       .then(data => {
         this.setState({
           data: data.data,
-          token: data.token
-        })
+          token: data.token,
+          loading: false
+        });
       })
-      .catch(err => console.log(err))
-  }
+      .catch(err => console.log(err));
+  };
   showContent = value => {
     fetch(`http://localhost:5500/content?file=${value}`)
       .then(res => res.json())
       .then(data => {
-        const newdata = data.data
+        const newdata = data.data;
         const content = {
           value,
           data: newdata
-        }
+        };
         this.setState({
           content,
           isShown: true
-        })
+        });
       })
-      .catch(err => console.log(err))
-  }
+      .catch(err => console.log(err));
+  };
   render() {
-    const { input, data, isShown, content, token } = this.state
-    console.log(token)
-    const reg = token.join('|').replace(/['"]+/g, '/')
-    console.log(reg)
+    const { input, data, isShown, content, token, loading } = this.state;
+    let reg;
+    if (token) {
+      reg = token.join("|").replace(/['"]+/g, "/");
+    } else {
+      reg = "";
+    }
+
     return (
       <React.Fragment>
         <div className="App">
-          <h1 data-shadow="Mr.Lazy">Mr.Lazy</h1>
+          <h1 data-shadow="Search">Search</h1>
           <div style={{ marginTop: 25 }}>
             <form onSubmit={this.submit}>
               <SearchInput
@@ -76,14 +86,14 @@ class App extends Component {
                 style={{
                   fontSize: 16,
                   boxShadow:
-                    '0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08)'
+                    "0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08)"
                 }}
                 width="100%"
               />
             </form>
             <span
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 15,
                 right: 20
               }}
@@ -94,13 +104,23 @@ class App extends Component {
           <Pane
             style={{
               borderRadius: 2,
-              margin: '25px 0',
-              backgroundColor: '#ffffff',
+              margin: "25px 0",
+              backgroundColor: "#ffffff",
               boxShadow:
-                '0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08)'
+                "0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08)"
             }}
           >
             <Table.Body height={240}>
+              {loading && (
+                <Pane
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  height={240}
+                >
+                  <Spinner />
+                </Pane>
+              )}
               {data.map((item, i) => (
                 <Table.Row
                   key={i}
@@ -126,9 +146,9 @@ class App extends Component {
             isShown={isShown}
             onCloseComplete={() => this.setState({ isShown: false })}
             containerProps={{
-              display: 'flex',
-              flex: '1',
-              flexDirection: 'column'
+              display: "flex",
+              flex: "1",
+              flexDirection: "column"
             }}
           >
             <Pane
@@ -149,7 +169,7 @@ class App extends Component {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Paragraph style={{ whiteSpace: 'pre-line', padding: 20 }}>
+                <Paragraph style={{ whiteSpace: "pre-line", padding: 20 }}>
                   <Highlight search={new RegExp(reg)}>{content.data}</Highlight>
                 </Paragraph>
               </Card>
@@ -157,8 +177,8 @@ class App extends Component {
           </SideSheet>
         )}
       </React.Fragment>
-    )
+    );
   }
 }
 
-export default App
+export default App;
