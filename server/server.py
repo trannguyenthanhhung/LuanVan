@@ -51,9 +51,8 @@ def search(word):
     try:
         for token in get_words_feature(word):
             isPosting = my_index.get(token)
-            print(isPosting)
-        if isPosting:
-            result.append(my_index.get(token))
+            if isPosting:
+                result.append(my_index.get(token))
         flat_list = flatten(result)
         kq2 = sorted(flat_list, key=lambda k: k['cosine'], reverse=True)
         return kq2
@@ -86,4 +85,4 @@ def getcontent():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5500, debug=True)
+    app.run(host='0.0.0.0', port=5500, debug=False)
